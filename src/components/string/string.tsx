@@ -25,18 +25,28 @@ export const StringComponent: React.FC = () => {
   const onChange = (e: React.ChangeEvent<HTMLInputElement>): void => {
     setInputText(e.target.value)
   };
-
-  const onClick = () => {
-    setInputArray(inputText.split(''))
-    for(let i=0; i<inputArray.length/2; i++){
-      let temp = inputArray[i];
-      inputArray[i]=inputArray[inputArray.length-1-i];
-      inputArray[inputArray.length-1-i]=temp;
-    }
-    return inputArray
+  const swapChars = (arr: string[], arg1: number, arg2: number) => {
+    setTimeout(() => {
+      const temp = arr[arg1];
+      arr[arg1] = arr[arg2];
+      arr[arg2] = temp
+      arg1++;
+      arg2--;
+      setInputArray([...arr])
+      if(arg2 >= arg1) {
+        swapChars(arr, arg1, arg2)
+      }
+    }, 1000)
   }
 
-  console.log(inputArray)
+  const onClick = () => {
+    const array = inputText.split("");
+    setInputArray(array)
+    let start = 0;
+    let end = array.length - 1;
+    swapChars(array, start, end)
+  }
+
   return (
     <SolutionLayout title="Строка">
       <div style={inputStyles}>
