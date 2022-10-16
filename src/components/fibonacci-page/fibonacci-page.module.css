@@ -1,0 +1,18 @@
+.input__container {
+    display: flex;
+    max-width: 522px;
+    justify-content: space-between;
+    margin-left: auto;
+    margin-right: auto;
+    margin-bottom: 74px;
+}
+
+.circle__container {
+    display: grid;
+    grid-template-columns: repeat(10, 1fr);
+    grid-template-rows: repeat(2, 1fr);
+    row-gap: 78px;
+    margin: auto;
+    max-width: 944px;
+    justify-content: center;
+}
