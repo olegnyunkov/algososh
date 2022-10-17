@@ -3,23 +3,9 @@ import {SolutionLayout} from "../ui/solution-layout/solution-layout";
 import {Input} from "../ui/input/input";
 import {Button} from "../ui/button/button";
 import {Circle} from "../ui/circle/circle";
+import styles from "./string.module.css"
 
 export const StringComponent: React.FC = () => {
-  const inputStyles = {
-    display: "flex",
-    maxWidth: 522,
-    justifyContent: "space-between",
-    marginLeft: "auto",
-    marginRight: "auto",
-    marginBottom: 146
-  };
-  const circleStyles = {
-    display: "flex",
-    margin: "auto",
-    maxWidth: 1040,
-    justifyContent: "center"
-  };
-
   const [inputText, setInputText] = useState<string>("");
   const [inputArray, setInputArray] = useState<string[]>([])
   const onChange = (e: React.ChangeEvent<HTMLInputElement>): void => {
@@ -49,7 +35,7 @@ export const StringComponent: React.FC = () => {
 
   return (
     <SolutionLayout title="Строка">
-      <div style={inputStyles}>
+      <div className={styles.input__container}>
         <Input
           onInput={onChange}
           isLimitText={true}
@@ -59,7 +45,7 @@ export const StringComponent: React.FC = () => {
           isLoader={false}
           onClick={onClick}/>
       </div>
-      <div style={circleStyles}>
+      <div className={styles.circle__container}>
         {inputArray.map((char, index) => {
           return <Circle
             key={index}
