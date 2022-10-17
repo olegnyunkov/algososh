@@ -8,11 +8,11 @@
 }
 
 .circle__container {
-    display: grid;
-    grid-template-columns: repeat(10, 1fr);
-    grid-template-rows: repeat(2, 1fr);
+    display: flex;
+    flex-wrap: wrap;
+    gap: 16px;
     row-gap: 78px;
-    margin: auto;
+    margin: 0 auto;
     max-width: 944px;
     justify-content: center;
 }
