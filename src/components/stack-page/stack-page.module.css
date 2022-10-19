@@ -1,0 +1,20 @@
+.stack__controls {
+    display: flex;
+    max-width: 829px;
+    margin: 0 auto 78px;
+}
+
+.stack__input {
+    display: flex;
+    width: 630px;
+    margin-right: auto;
+    gap: 12px;
+}
+
+.circle__container {
+    display: flex;
+    max-width: 368px;
+    justify-content: center;
+    margin: 0 auto;
+    gap: 16px;
+}
