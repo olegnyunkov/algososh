@@ -17,6 +17,7 @@ export const QueuePage: React.FC = () => {
 
   const addToQueue = () => {
     inputValue && stackQueue.splice(addCount, 1, inputValue)
+    // @ts-ignore
     setStackQueue([...stackQueue])
     const counter = addCount + 1
     setAddCount(counter)
@@ -24,6 +25,7 @@ export const QueuePage: React.FC = () => {
 
   const removeFromQueue = () => {
     delete(stackQueue[removeCount])
+    // @ts-ignore
     setStackQueue([...stackQueue])
     const counter = removeCount + 1
     setRemoveCount(counter)

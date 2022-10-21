@@ -1,0 +1,14 @@
+.list__controls {
+    display: flex;
+    gap: 12px;
+    max-width: 952px;
+    margin: 0 auto 38px;
+}
+
+.circle__container {
+    display: flex;
+    margin: 120px auto 0;
+    justify-content: center;
+    align-items: center;
+    gap: 25px;
+}
