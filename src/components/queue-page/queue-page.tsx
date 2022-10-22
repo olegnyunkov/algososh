@@ -37,7 +37,6 @@ export const QueuePage: React.FC = () => {
     setRemoveCount(0)
   }
 
-  console.log(addCount, removeCount)
   return (
     <SolutionLayout title="Очередь">
       <div className={styles.queue__controls}>

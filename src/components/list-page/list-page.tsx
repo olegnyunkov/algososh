@@ -42,7 +42,6 @@ export const ListPage: React.FC = () => {
     setListArray([...listArray]);
   }
 
-  console.log(inputValue, inputIndex)
   return (
     <SolutionLayout title="Связный список">
       <div className={styles.list__controls}>

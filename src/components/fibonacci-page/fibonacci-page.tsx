@@ -39,7 +39,7 @@ export const FibonacciPage: React.FC = () => {
   const onClick = () => {
     inputText && fibonacci(inputText)
   }
-  console.log(resultArray)
+
   return (
     <SolutionLayout title="Последовательность Фибоначчи">
       <div className={styles.input__container}>

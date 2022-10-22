@@ -3,42 +3,58 @@ import {SolutionLayout} from "../ui/solution-layout/solution-layout";
 import {Input} from "../ui/input/input";
 import {Button} from "../ui/button/button";
 import {Circle} from "../ui/circle/circle";
-import styles from "./string.module.css"
-import { ElementStates } from "../../types/element-states";
+import styles from "./string.module.css";
+import {ElementStates} from "../../types/element-states";
 
 export const StringComponent: React.FC = () => {
-  const [inputText, setInputText] = useState<string>("");
-  const [inputArray, setInputArray] = useState<string[]>([]);
+  const [inputValue, setInputValue] = useState<string>("");
+  const [stringArray, setStringArray] = useState<{char: string, state: ElementStates, index: number}[]>([]);
   const [buttonLoader, setButtonLoader] = useState<boolean>(false);
-  const [circleState, setCircleState] = useState<ElementStates>(ElementStates.Default)
+
   const onChange = (e: React.ChangeEvent<HTMLInputElement>): void => {
-    setInputText(e.target.value)
+    setInputValue(e.target.value);
   };
-  const swapChars = (arr: string[], arg1: number, arg2: number) => {
+
+  const swapChars = (arr: {char: string, state: ElementStates, index: number}[], arg1: number, arg2: number) => {
     setTimeout(() => {
       const temp = arr[arg1];
+      if(arr[arg1].index !== arr[arg2].index) {
+        arr[arg1 + 1].state = ElementStates.Changing
+        arr[arg2 - 1].state = ElementStates.Changing
+      }
       arr[arg1] = arr[arg2];
-      arr[arg2] = temp
+      arr[arg2] = temp;
       arg1++;
       arg2--;
-      setInputArray([...arr])
+      arr[arg1 - 1].state = ElementStates.Modified
+      arr[arg2 + 1].state = ElementStates.Modified
+      setStringArray([...arr])
       if(arg2 >= arg1) {
-        swapChars(arr, arg1, arg2)
+        swapChars(arr, arg1, arg2);
       }
       if(arg2 < arg1) {
-        setButtonLoader(false)
+        setButtonLoader(false);
       }
-    }, 1000)
-  }
+    }, 1000);
+  };
 
   const onClick = () => {
-    setButtonLoader(true)
-    const array = inputText.split("");
-    setInputArray(array)
-    let start = 0;
-    let end = array.length - 1;
-    swapChars(array, start, end)
-  }
+    setButtonLoader(true);
+    const array: {char: string, state: ElementStates, index: number}[] = [];
+    inputValue.split("").forEach((item, index) => {
+      array.push({
+        char: item,
+        state: ElementStates.Default,
+        index: index + 1,
+      })
+    });
+    setStringArray([...array])
+    array[0].state = ElementStates.Changing
+    array[array.length - 1].state = ElementStates.Changing
+    const start = 0;
+    const end = array.length - 1;
+    swapChars(array, start, end);
+  };
 
   return (
     <SolutionLayout title="Строка">
@@ -53,11 +69,11 @@ export const StringComponent: React.FC = () => {
           onClick={onClick}/>
       </div>
       <div className={styles.circle__container}>
-        {inputArray.map((char, index) => {
+        {stringArray.map((item, index) => {
           return <Circle
             key={index}
-            letter={char}
-            state={circleState}/>
+            letter={item.char}
+            state={item.state}/>
         })}
       </div>
     </SolutionLayout>
