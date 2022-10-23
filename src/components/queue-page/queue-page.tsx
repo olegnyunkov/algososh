@@ -1,9 +1,10 @@
-import React, {useState} from "react";
+import React, {useEffect, useState} from "react";
 import {SolutionLayout} from "../ui/solution-layout/solution-layout";
 import styles from "./queue-page.module.css";
 import {Input} from "../ui/input/input";
 import {Button} from "../ui/button/button";
 import {Circle} from "../ui/circle/circle";
+import {ElementStates} from "../../types/element-states";
 
 export const QueuePage: React.FC = () => {
   const array = Array.from({length: 7}, () => null)
@@ -11,6 +12,7 @@ export const QueuePage: React.FC = () => {
   const [stackQueue, setStackQueue] = useState<number[] | null[]>([...array])
   const [addCount, setAddCount] = useState<number>(0)
   const [removeCount, setRemoveCount] = useState<number>(0)
+  const [head, setHead] = useState("")
   const onChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setInputValue(+e.target.value)
   }
@@ -24,7 +26,7 @@ export const QueuePage: React.FC = () => {
   }
 
   const removeFromQueue = () => {
-    delete(stackQueue[removeCount])
+    delete (stackQueue[removeCount])
     // @ts-ignore
     setStackQueue([...stackQueue])
     const counter = removeCount + 1
@@ -44,7 +46,7 @@ export const QueuePage: React.FC = () => {
           <Input
             type="number"
             isLimitText={true}
-            max={4}
+            max={9999}
             onChange={onChange}
           />
           <Button
@@ -62,11 +64,13 @@ export const QueuePage: React.FC = () => {
         />
       </div>
       <div className={styles.circle__container}>
-        {stackQueue.map((char, index) => {
+        {stackQueue.map((item, index) => {
           return <Circle
             key={index}
-            letter={char}
-            index={index}/>
+            letter={item}
+            index={index}
+            head={head}
+            tail={"tail"}/>
         })}
       </div>
     </SolutionLayout>
