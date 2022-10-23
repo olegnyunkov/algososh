@@ -1,4 +1,4 @@
-import React, {useState} from "react";
+import React, {useEffect, useState} from "react";
 import {SolutionLayout} from "../ui/solution-layout/solution-layout";
 import {Input} from "../ui/input/input";
 import {Button} from "../ui/button/button";
@@ -6,51 +6,65 @@ import {Circle} from "../ui/circle/circle";
 import styles from "./fibonacci-page.module.css"
 
 export const FibonacciPage: React.FC = () => {
-  const inputStyles = {
-    display: "flex",
-    maxWidth: 522,
-    justifyContent: "space-between",
-    marginLeft: "auto",
-    marginRight: "auto",
-    marginBottom: 74
-  };
-  const circleStyles = {
-    display: "flex",
-    margin: "auto",
-    maxWidth: 944,
-    justifyContent: "center"
+  const [inputValue, setInputValue] = useState<number>();
+  const [resultArray, setResultArray] = useState<number[]>([]);
+  const [buttonState, setButtonState] = useState<boolean>(false);
+  const [buttonLoader, setButtonLoader] = useState<boolean>(false);
+  const onChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setInputValue(+e.target.value)
   };
 
-  const [inputText, setInputText] = useState<number>();
-  const [resultArray, setResultArray] = useState<number[]>([])
-  const onChange = (e: React.ChangeEvent<HTMLInputElement>): void => {
-    setInputText(+e.target.value)
-  };
-
-  const fibonacci = (n: number) => {
-    const arrStart = [0, 1]
-    for (let i = 2; i < n + 1; i++) {
-      arrStart.push(arrStart[i - 2] + arrStart[i - 1])
-      setResultArray(arrStart)
-    }
+  const timer = () => {
+    return new Promise((res) => {
+      setTimeout(() => {
+        res(null)
+      }, 500)
+    })
   }
 
+  const fibonacci = async (n: number) => {
+    const arrStart = [0, 1]
+    const tempArray: number[] = []
+    for (let k = 0; k < arrStart.length; k++) {
+      await timer()
+      tempArray.push(arrStart[k])
+      setResultArray([...tempArray])
+    }
+    for (let i = 2; i < n + 1; i++) {
+      await timer()
+      tempArray.push(tempArray[i - 2] + tempArray[i - 1])
+      setResultArray([...tempArray])
+    }
+    setButtonLoader(false)
+  }
 
   const onClick = () => {
-    inputText && fibonacci(inputText)
+    setButtonLoader(true)
+    inputValue && fibonacci(inputValue)
   }
+
+  useEffect(() => {
+    if (inputValue && inputValue < 1 || inputValue && inputValue > 19) {
+      setButtonState(true)
+    } else {
+      setButtonState(false)
+    }
+  }, [inputValue])
 
   return (
     <SolutionLayout title="Последовательность Фибоначчи">
       <div className={styles.input__container}>
         <Input
+          placeholder="Введите число"
           type="number"
           isLimitText={true}
           max={19}
           onChange={onChange}/>
         <Button
           text="Рассчитать"
-          onClick={onClick}/>
+          onClick={onClick}
+          disabled={buttonState}
+          isLoader={buttonLoader}/>
       </div>
       <div className={styles.circle__container}>
         {resultArray.map((char, index) => {
