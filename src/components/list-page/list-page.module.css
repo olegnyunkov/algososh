@@ -1,8 +1,14 @@
 .list__controls {
     display: flex;
     gap: 12px;
-    max-width: 952px;
+    width: 952px;
     margin: 0 auto 38px;
+}
+
+.list__buttons {
+    display: flex;
+    gap: 12px;
+    width: 736px;
 }
 
 .circle__container {
