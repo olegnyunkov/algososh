@@ -4,23 +4,17 @@ import {Input} from "../ui/input/input";
 import {Button} from "../ui/button/button";
 import {Circle} from "../ui/circle/circle";
 import styles from "./fibonacci-page.module.css"
+import {timer} from "./utils";
 
 export const FibonacciPage: React.FC = () => {
   const [inputValue, setInputValue] = useState<number>();
   const [resultArray, setResultArray] = useState<number[]>([]);
   const [buttonState, setButtonState] = useState<boolean>(false);
   const [buttonLoader, setButtonLoader] = useState<boolean>(false);
+
   const onChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setInputValue(+e.target.value)
   };
-
-  const timer = () => {
-    return new Promise((res) => {
-      setTimeout(() => {
-        res(null)
-      }, 500)
-    })
-  }
 
   const fibonacci = async (n: number) => {
     const arrStart = [0, 1]
@@ -44,7 +38,7 @@ export const FibonacciPage: React.FC = () => {
   }
 
   useEffect(() => {
-    if (inputValue && inputValue < 1 || inputValue && inputValue > 19) {
+    if (inputValue && inputValue < 1 || inputValue && inputValue > 19 || inputValue === 0) {
       setButtonState(true)
     } else {
       setButtonState(false)

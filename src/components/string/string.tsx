@@ -5,17 +5,24 @@ import {Button} from "../ui/button/button";
 import {Circle} from "../ui/circle/circle";
 import styles from "./string.module.css";
 import {ElementStates} from "../../types/element-states";
+import {DELAY_IN_MS} from "../../constants/delays";
+
+export type TStringArray = {
+  char: string;
+  state: ElementStates;
+  index: number;
+}
 
 export const StringComponent: React.FC = () => {
   const [inputValue, setInputValue] = useState<string>("");
-  const [stringArray, setStringArray] = useState<{char: string, state: ElementStates, index: number}[]>([]);
+  const [stringArray, setStringArray] = useState<TStringArray[]>([]);
   const [buttonLoader, setButtonLoader] = useState<boolean>(false);
 
   const onChange = (e: React.ChangeEvent<HTMLInputElement>): void => {
     setInputValue(e.target.value);
   };
 
-  const swapChars = (arr: {char: string, state: ElementStates, index: number}[], arg1: number, arg2: number) => {
+  const swapChars = (arr: TStringArray[], arg1: number, arg2: number) => {
     setTimeout(() => {
       const temp = arr[arg1];
       if(arr[arg1].index !== arr[arg2].index) {
@@ -35,12 +42,12 @@ export const StringComponent: React.FC = () => {
       if(arg2 < arg1) {
         setButtonLoader(false);
       }
-    }, 1000);
+    }, DELAY_IN_MS);
   };
 
   const onClick = () => {
     setButtonLoader(true);
-    const array: {char: string, state: ElementStates, index: number}[] = [];
+    const array: TStringArray[] = [];
     inputValue.split("").forEach((item, index) => {
       array.push({
         char: item,

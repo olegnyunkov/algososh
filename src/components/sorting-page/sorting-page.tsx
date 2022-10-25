@@ -6,15 +6,12 @@ import {Column} from "../ui/column/column";
 import styles from "./sorting-page.module.css"
 import {Direction} from "../../types/direction";
 import {ElementStates} from "../../types/element-states";
+import {timer} from "./utils";
 
 //анимация еще не готова
 export const SortingPage: React.FC = () => {
   const [sortingArray, setSortingArray] = useState<{index: number, state: ElementStates}[]>([])
   const [value, setValue] = useState<string>("select")
-
-  const timer = () => {
-    return new Promise((res) => {setTimeout(res, 500)})
-  }
 
   const generateRandomArray = () => {
     const arrayLength = Math.floor(Math.random() * (17 - 3) + 3);
