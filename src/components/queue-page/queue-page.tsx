@@ -1,109 +1,99 @@
-import React, {useEffect, useState} from "react";
+import React, {useState} from "react";
 import {SolutionLayout} from "../ui/solution-layout/solution-layout";
 import styles from "./queue-page.module.css";
 import {Input} from "../ui/input/input";
 import {Button} from "../ui/button/button";
 import {Circle} from "../ui/circle/circle";
 import {ElementStates} from "../../types/element-states";
+import {Queue, timer} from "./utils";
 
-export type TArrElement = {
-  letter: number | null | undefined;
-  head: string;
-  tail: string;
+export type TQueue = {
+  value: string | number;
   state: ElementStates;
-  id: number | null
 }
 
 export const QueuePage: React.FC = () => {
-  const arrElement = {
-    letter: null,
-    head: "",
-    tail: "",
-    state: ElementStates.Default,
-    id: null,
-  }
-  const array = Array.from({length: 7}, () => arrElement)
+  const queue = new Queue<TQueue>(7)
   const [inputValue, setInputValue] = useState<number | string>("")
-  const [stackQueue, setStackQueue] = useState<TArrElement[]>([...array])
-  const [addCount, setAddCount] = useState<number>(0)
-  const [removeCount, setRemoveCount] = useState<number>(0)
+  const [tempArray, setTempArray] = useState<Queue<TQueue>>(queue)
+  const [stackQueue, setStackQueue] = useState<(TQueue | null)[]>([])
   const [addButtonState, setAddButtonState] = useState<boolean>(false)
   const [removeButtonState, setRemoveButtonState] = useState<boolean>(false)
   const [resetButtonState, setResetButtonState] = useState<boolean>(false)
+
   const onChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setInputValue(e.target.value)
   }
 
-  const timer = () => {
-    return new Promise((res) => {
-      setTimeout(() => {
-        res(null)
-      }, 500)
-    })
+  const generateArray = () => {
+    const array = []
+    for(let i = 0; i < 7; i++) {
+      array.push(<Circle
+        state={ElementStates.Default}
+        letter=''
+        index={i}
+        head=''
+        tail=''
+      />)
+    }
+    return array
   }
 
   const addToQueue: React.MouseEventHandler<HTMLButtonElement> = async () => {
-    //@ts-ignore
-    arrElement.letter = inputValue;
-    //@ts-ignore
-    arrElement.id = addCount;
-    arrElement.state = ElementStates.Changing
-    stackQueue.splice(addCount, 1, arrElement)
-    stackQueue.forEach((item) => {
-      if(addCount === item.id) {
-        item.head = "head"        
-      } else {
-        item.head = ""
-      }
-    })    
-    setStackQueue([...stackQueue])
+    setAddButtonState(true)
+    tempArray.enqueue({value: inputValue, state: ElementStates.Changing})
+    setTempArray(tempArray)
+    setStackQueue([...tempArray.getItems()])
     await timer()
-    arrElement.state = ElementStates.Default
-    const counter = addCount + 1
-    setAddCount(counter)
+    const tail = tempArray.getItems()[tempArray.getTail()]
+    if(tail) {
+      tail.state = ElementStates.Default
+    }
+    setTempArray(tempArray)
+    setStackQueue([...tempArray.getItems()])
+    setAddButtonState(false)
+    setInputValue("")
   }
 
   const removeFromQueue: React.MouseEventHandler<HTMLButtonElement> = async () => {
-    stackQueue[removeCount].state = ElementStates.Changing
-    setStackQueue([...stackQueue])
+    setRemoveButtonState(true)
+    const head = tempArray.peak()
+    if(head) {
+      head.state = ElementStates.Changing
+    }
+    setTempArray(tempArray)
+    setStackQueue([...tempArray.getItems()])
     await timer()
-    stackQueue[removeCount].letter = null
-    stackQueue.forEach((item) => {
-      if(removeCount + 1 === item.id) {
-        item.tail = "tail"        
-      } else {
-        item.tail = ""
-      }
-    })
-    stackQueue[removeCount].state = ElementStates.Default      
-    setStackQueue([...stackQueue])
-    const counter = removeCount + 1
-    setRemoveCount(counter)
+    tempArray.dequeue()
+    setTempArray(tempArray)
+    setStackQueue([...tempArray.getItems()])
+    setRemoveButtonState(false)
   }
-
+  console.log()
   const clearQueue: React.MouseEventHandler<HTMLButtonElement> = () => {
-    setStackQueue([...array])
-    setAddCount(0)
-    setRemoveCount(0)
+    setResetButtonState(true)
+    tempArray.clear()
+    setTempArray(tempArray)
+    setStackQueue([...tempArray.getItems()])
   }
 
-  useEffect(() => {
-    if(addCount > 6 || !inputValue || inputValue.toString().length > 4) {
-      setAddButtonState(true)
-    } else {
-      setAddButtonState(false)
-    }
-    if(removeCount > 6 || !inputValue || removeCount >= addCount) {
-      setRemoveButtonState(true)
-    } else {
-      setRemoveButtonState(false)
-    }
-    if(!addCount) {
-      setResetButtonState(true)
-    } else {
-      setResetButtonState(false)
-    }
-  }, [inputValue, addCount, removeCount])
+  // useEffect(() => {
+    // if(addCount > 6 || !inputValue || inputValue.toString().length > 4) {
+    //   setAddButtonState(true)
+    // } else {
+    //   setAddButtonState(false)
+    // }
+    // if(removeCount > 6 || !inputValue || removeCount >= addCount) {
+    //   setRemoveButtonState(true)
+    // } else {
+    //   setRemoveButtonState(false)
+    // }
+    // if(!addCount) {
+    //   setResetButtonState(true)
+    // } else {
+    //   setResetButtonState(false)
+    // }
+  // }, [inputValue, addCount, removeCount])
 
   return (
     <SolutionLayout title="Очередь">
@@ -134,14 +124,15 @@ export const QueuePage: React.FC = () => {
         />
       </div>
       <div className={styles.circle__container}>
-        {stackQueue.map((item, index) => {
+        {tempArray.isEmpty() && generateArray()}
+        {!tempArray.isEmpty() && stackQueue.map((item, index) => {
           return <Circle
             key={index}
-            letter={item.letter}
+            letter={item?.value || ""}
             index={index}
-            head={item.head}
-            tail={item.tail}
-            state={item.state}/>
+            head={index === tempArray.getHead() ? "head" : ""}
+            tail={index === tempArray.getTail() ? "tail" : ""}
+            state={item?.state}/>
         })}
       </div>
     </SolutionLayout>
