@@ -5,42 +5,38 @@ import {Button} from "../ui/button/button";
 import styles from "./stack-page.module.css";
 import {Circle} from "../ui/circle/circle";
 import {ElementStates} from "../../types/element-states";
+import {Stack, timer} from "./utils";
+
+type TStackItem = {
+  letter: string | number;
+  state: ElementStates;
+  head: string
+};
 
 export const StackPage: React.FC = () => {
+  const stack = new Stack<TStackItem>()
+
   const [inputValue, setInputValue] = useState<string | number>("")
-  const [stackArray, setStackArray] = useState<{ letter: string | number, state: ElementStates, head: string }[]>([])
+  const [tempArray, setTempArray] = useState<Stack<TStackItem>>(stack)
+  const [stackArray, setStackArray] = useState<TStackItem[]>([])
   const [buttonState, setButtonState] = useState<boolean>(false);
   const [removeButtonState, setRemoveButtonState] = useState<boolean>(false)
   const [resetButtonState, setResetButtonState] = useState<boolean>(false)
   const [buttonLoader, setButtonLoader] = useState<boolean>(false);
+
   const onChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setInputValue(e.target.value)
   }
 
-  const timer = () => {
-    return new Promise((res) => {
-      setTimeout(() => {
-        res(null)
-      }, 500)
-    })
-  }
-
-  const addToStack: React.MouseEventHandler<HTMLButtonElement> =async () => {
+  const addToStack: React.MouseEventHandler<HTMLButtonElement> = async () => {
     setButtonLoader(true)
-    inputValue && stackArray.push({letter: inputValue, state: ElementStates.Default, head: ""})
-    stackArray.forEach(async (item) => {
-      if (stackArray.indexOf(item) === stackArray.indexOf(stackArray[stackArray.length - 1])) {
-        item.head = "top"
-        item.state = ElementStates.Changing
-        await timer()
-        item.state = ElementStates.Default
-        setStackArray([...stackArray])
-      } else {
-        item.head = ""
-        item.state = ElementStates.Default
-      }
-    })
-    setStackArray([...stackArray])
+    tempArray.push({letter: inputValue, state: ElementStates.Changing, head: ""})
+    setTempArray(tempArray)
+    setStackArray([...tempArray.getItems()])
+    await timer()
+    tempArray.peak().state = ElementStates.Default
+    setTempArray(tempArray)
+    setStackArray([...tempArray.getItems()])
     await timer()
     setButtonLoader(false)
     setInputValue("")
@@ -48,23 +44,20 @@ export const StackPage: React.FC = () => {
 
   const removeFromStack: React.MouseEventHandler<HTMLButtonElement> = async () => {
     setButtonLoader(true)
-    stackArray.forEach((item) => {
-      if (stackArray.indexOf(item) === stackArray.indexOf(stackArray[stackArray.length - 1])) {
-        item.head = "top"
-        item.state = ElementStates.Changing
-        setStackArray([...stackArray])
-      } else {
-        item.head = ""
-      }
-    })
+    tempArray.peak().state = ElementStates.Changing
+    setTempArray(tempArray)
+    setStackArray([...tempArray.getItems()])
     await timer()
-    stackArray.pop()
-    setStackArray([...stackArray])
+    tempArray.pop()
+    setTempArray(tempArray)
+    setStackArray([...tempArray.getItems()])
     await timer()
     setButtonLoader(false)
   }
 
   const clearStack: React.MouseEventHandler<HTMLButtonElement> = () => {
+    tempArray.clear()
+    setTempArray(tempArray)
     setStackArray([])
   }
 
@@ -82,6 +75,15 @@ export const StackPage: React.FC = () => {
       setResetButtonState(false)
     }
   }, [inputValue, stackArray.length])
+
+  useEffect(() => {
+    if(stackArray.length > 0) {
+      stackArray[stackArray.length - 1].head = "top"
+    }
+    if(stackArray.length > 1) {
+      stackArray[stackArray.length - 2].head = ""
+    }
+  }, [stackArray.length])
 
   return (
     <SolutionLayout title="Стек">
