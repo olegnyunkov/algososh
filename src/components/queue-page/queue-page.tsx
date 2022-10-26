@@ -23,14 +23,15 @@ export const QueuePage: React.FC = () => {
     id: null,
   }
   const array = Array.from({length: 7}, () => arrElement)
-  const [inputValue, setInputValue] = useState<number>()
+  const [inputValue, setInputValue] = useState<number | string>("")
   const [stackQueue, setStackQueue] = useState<TArrElement[]>([...array])
   const [addCount, setAddCount] = useState<number>(0)
   const [removeCount, setRemoveCount] = useState<number>(0)
   const [addButtonState, setAddButtonState] = useState<boolean>(false)
   const [removeButtonState, setRemoveButtonState] = useState<boolean>(false)
+  const [resetButtonState, setResetButtonState] = useState<boolean>(false)
   const onChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setInputValue(+e.target.value)
+    setInputValue(e.target.value)
   }
 
   const timer = () => {
@@ -41,7 +42,7 @@ export const QueuePage: React.FC = () => {
     })
   }
 
-  const addToQueue = async () => {
+  const addToQueue: React.MouseEventHandler<HTMLButtonElement> = async () => {
     //@ts-ignore
     arrElement.letter = inputValue;
     //@ts-ignore
@@ -62,7 +63,7 @@ export const QueuePage: React.FC = () => {
     setAddCount(counter)
   }
 
-  const removeFromQueue = async () => {
+  const removeFromQueue: React.MouseEventHandler<HTMLButtonElement> = async () => {
     stackQueue[removeCount].state = ElementStates.Changing
     setStackQueue([...stackQueue])
     await timer()
@@ -80,27 +81,27 @@ export const QueuePage: React.FC = () => {
     setRemoveCount(counter)
   }
 
-  const clearQueue = () => {
+  const clearQueue: React.MouseEventHandler<HTMLButtonElement> = () => {
     setStackQueue([...array])
     setAddCount(0)
     setRemoveCount(0)
   }
 
   useEffect(() => {
-    if(inputValue && inputValue > 9999) {
+    if(addCount > 6 || !inputValue || inputValue.toString().length > 4) {
       setAddButtonState(true)
     } else {
       setAddButtonState(false)
     }
-    if(addCount > 6 || !inputValue) {
-      setAddButtonState(true)
-    } else {
-      setAddButtonState(false)
-    }
-    if(removeCount > 6 || !inputValue || addCount === 0) {
+    if(removeCount > 6 || !inputValue || removeCount >= addCount) {
       setRemoveButtonState(true)
     } else {
       setRemoveButtonState(false)
+    }
+    if(!addCount) {
+      setResetButtonState(true)
+    } else {
+      setResetButtonState(false)
     }
   }, [inputValue, addCount, removeCount])
 
@@ -109,10 +110,11 @@ export const QueuePage: React.FC = () => {
       <div className={styles.queue__controls}>
         <div className={styles.queue__input}>
           <Input
-            type="number"
+            type="text"
             isLimitText={true}
-            max={9999}
+            maxLength={4}
             onChange={onChange}
+            value={inputValue}
           />
           <Button
             text="Добавить"
@@ -122,12 +124,13 @@ export const QueuePage: React.FC = () => {
           <Button
             text="Удалить"
             onClick={removeFromQueue}
-            disabled={removeButtonState}
+            disabled={resetButtonState}
           />
         </div>
         <Button
           text="Очистить"
           onClick={clearQueue}
+          disabled={resetButtonState}
         />
       </div>
       <div className={styles.circle__container}>

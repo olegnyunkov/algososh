@@ -10,8 +10,12 @@ import {timer} from "./utils";
 
 //анимация еще не готова
 export const SortingPage: React.FC = () => {
-  const [sortingArray, setSortingArray] = useState<{index: number, state: ElementStates}[]>([])
-  const [value, setValue] = useState<string>("select")
+  const [sortingArray, setSortingArray] = useState<{index: number, state: ElementStates}[]>([]);
+  const [value, setValue] = useState<string>("select");
+  const [ascButtonState, setAscButtonState] = useState<{disabled: boolean, isLoading: boolean}>({disabled: false, isLoading: false});
+  const [descButtonState, setDescButtonState] = useState<{disabled: boolean, isLoading: boolean}>({disabled: false, isLoading: false});
+  const [resetButtonState, setResetButtonState] = useState<{disabled: boolean, isLoading: boolean}>({disabled: false, isLoading: false});
+
 
   const generateRandomArray = () => {
     const arrayLength = Math.floor(Math.random() * (17 - 3) + 3);
@@ -27,11 +31,12 @@ export const SortingPage: React.FC = () => {
     generateRandomArray()
   }, [])
 
-  const changeCheckbox = (e: any) => {
-    setValue(e.target.value)
+  const changeCheckbox: React.FormEventHandler<HTMLInputElement> = (e) => {
+    setValue(e.currentTarget.value)
   }
 
-  const selectionAscSort = async () => {
+  const selectionAscSort: React.MouseEventHandler<HTMLButtonElement> = async () => {
+    setAscButtonState({disabled: false, isLoading: true})
     const arr = [...sortingArray]
     for (let i = 0, l = arr.length, k = l - 1; i < k; i++) {
       let indexMin = i;
@@ -48,9 +53,11 @@ export const SortingPage: React.FC = () => {
       }
       setSortingArray([...arr])
     }
+    setAscButtonState({disabled: false, isLoading: false})
   };
 
-  const selectionDescSort = async () => {
+  const selectionDescSort: React.MouseEventHandler<HTMLButtonElement> = async () => {
+    setDescButtonState({disabled: false, isLoading: true})
     const arr = [...sortingArray]
     for (let i = 0, l = arr.length, k = l - 1; i < k; i++) {
       let indexMin = i;
@@ -67,9 +74,11 @@ export const SortingPage: React.FC = () => {
       }
       setSortingArray([...arr])
     }
+    setDescButtonState({disabled: false, isLoading: false})
   }
 
-  const bubbleAscSort = () => {
+  const bubbleAscSort: React.MouseEventHandler<HTMLButtonElement> = () => {
+    setAscButtonState({disabled: false, isLoading: true})
     const arr = [...sortingArray]
     for (let i = 0, endI = arr.length - 1; i < endI; i++) {
       let sorted = false;
@@ -82,9 +91,11 @@ export const SortingPage: React.FC = () => {
       if (!sorted) break;
     }
     setSortingArray([...arr]);
+    setAscButtonState({disabled: false, isLoading: false})
   }
 
-  const bubbleDescSort = () => {
+  const bubbleDescSort: React.MouseEventHandler<HTMLButtonElement> = () => {
+    setDescButtonState({disabled: false, isLoading: true})
     const arr = [...sortingArray]
     for (let i = 0, endI = arr.length - 1; i < endI; i++) {
       let sorted = false;
@@ -97,7 +108,23 @@ export const SortingPage: React.FC = () => {
       if (!sorted) break;
     }
     setSortingArray([...arr]);
+    setDescButtonState({disabled: false, isLoading: false})
   }
+
+  useEffect(() => {
+    if(ascButtonState.isLoading) {
+      setDescButtonState({disabled: true, isLoading: false})
+      setResetButtonState({disabled: true, isLoading: false})
+    } else if (descButtonState.isLoading) {
+      setAscButtonState({disabled: true, isLoading: false})
+      setResetButtonState({disabled: true, isLoading: false})
+    } else {
+      setAscButtonState({disabled: false, isLoading: false})
+      setDescButtonState({disabled: false, isLoading: false})
+      setResetButtonState({disabled: false, isLoading: false})
+    }
+  }, [ascButtonState.isLoading, descButtonState.isLoading])
+  
 
   return (
     <SolutionLayout title="Сортировка массива">
@@ -118,15 +145,21 @@ export const SortingPage: React.FC = () => {
           <Button
             text="По возрастанию"
             sorting={Direction.Ascending}
-            onClick={value === "select" ? selectionAscSort : bubbleAscSort}/>
+            onClick={value === "select" ? selectionAscSort : bubbleAscSort}
+            disabled={ascButtonState.disabled}
+            isLoader={ascButtonState.isLoading}/>
           <Button
             text="По убыванию"
             sorting={Direction.Descending}
-            onClick={value === "select" ? selectionDescSort : bubbleDescSort}/>
+            onClick={value === "select" ? selectionDescSort : bubbleDescSort}
+            disabled={descButtonState.disabled}
+            isLoader={descButtonState.isLoading}/>
         </div>
         <Button
           text="Новый массив"
-          onClick={generateRandomArray}/>
+          onClick={generateRandomArray}
+          disabled={resetButtonState.disabled}
+          isLoader={resetButtonState.isLoading}/>
       </div>
       <div className={styles.sorting__columns}>
         {sortingArray.map((item, index) => {

@@ -7,7 +7,7 @@ import styles from "./fibonacci-page.module.css"
 import {timer} from "./utils";
 
 export const FibonacciPage: React.FC = () => {
-  const [inputValue, setInputValue] = useState<number>();
+  const [inputValue, setInputValue] = useState<number>(0);
   const [resultArray, setResultArray] = useState<number[]>([]);
   const [buttonState, setButtonState] = useState<boolean>(false);
   const [buttonLoader, setButtonLoader] = useState<boolean>(false);
@@ -30,15 +30,16 @@ export const FibonacciPage: React.FC = () => {
       setResultArray([...tempArray])
     }
     setButtonLoader(false)
+    setInputValue(0)
   }
 
-  const onClick = () => {
+  const onClick: React.MouseEventHandler<HTMLButtonElement> = () => {
     setButtonLoader(true)
     inputValue && fibonacci(inputValue)
   }
 
   useEffect(() => {
-    if (inputValue && inputValue < 1 || inputValue && inputValue > 19 || inputValue === 0) {
+    if (inputValue && inputValue < 1 || inputValue && inputValue > 19 || inputValue === 0 || !inputValue) {
       setButtonState(true)
     } else {
       setButtonState(false)
@@ -50,10 +51,12 @@ export const FibonacciPage: React.FC = () => {
       <div className={styles.input__container}>
         <Input
           placeholder="Введите число"
-          type="number"
+          type="text"
           isLimitText={true}
+          maxLength={2}
           max={19}
-          onChange={onChange}/>
+          onChange={onChange}
+          value={inputValue}/>
         <Button
           text="Рассчитать"
           onClick={onClick}

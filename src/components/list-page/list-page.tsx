@@ -9,7 +9,7 @@ import {ElementStates} from "../../types/element-states";
 import {nanoid} from "nanoid";
 
 export type TArrElement = {
-  letter: number | undefined | null;
+  letter: number | string | undefined | null;
   state: ElementStates;
   head: string | ReactElement;
   tail: string | ReactElement;
@@ -41,12 +41,19 @@ export const ListPage: React.FC = () => {
     return array
   }
 
-  const [inputValue, setInputValue] = useState<number | undefined>()
+  const [inputValue, setInputValue] = useState<number | string | undefined>("")
   const [inputIndex, setInputIndex] = useState<number | undefined>()
   const [listArray, setListArray] = useState<TArrElement[]>([...generateRandomArray()])
+  const [addToHeadButtonState, setAddToHeadButtonState] = useState({disabled: false, isLoading: false})
+  const [addToTailButtonState, setAddToTailButtonState] = useState({disabled: false, isLoading: false})
+  const [removeFromHeadButtonState, setRemoveFromHeadButtonState] = useState({disabled: false, isLoading: false})
+  const [removeFromTailButtonState, setRemoveFromTailButtonState] = useState({disabled: false, isLoading: false})
+  const [addByIndexButtonState, setAddByIndexButtonState] = useState({disabled: false, isLoading: false})
+  const [removeByIndexButtonState, setRemoveByIndexButtonState] = useState({disabled: false, isLoading: false})
+
 
   const onChangeValue = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setInputValue(+e.target.value)
+    setInputValue(e.target.value)
   }
   const onChangeIndex = (e: React.ChangeEvent<HTMLInputElement>) => {
     setInputIndex(+e.target.value)
@@ -75,7 +82,8 @@ export const ListPage: React.FC = () => {
     })
   }
 
-  const addToHead = async () => {
+  const addToHead: React.MouseEventHandler<HTMLButtonElement> = async () => {
+    setAddToHeadButtonState({disabled: false, isLoading: true})
     listArray[0].head = <Circle
       letter={inputValue}
       state={ElementStates.Changing}
@@ -91,9 +99,11 @@ export const ListPage: React.FC = () => {
     await timer()
     listArray[0].state = ElementStates.Default
     setListArray([...listArray]);
+    setAddToHeadButtonState({disabled: false, isLoading: false})
   }
 
-  const addToTail = async () => {
+  const addToTail: React.MouseEventHandler<HTMLButtonElement> = async () => {
+    setAddToTailButtonState({disabled: false, isLoading: true})
     listArray[listArray.length - 1].tail = <Circle
       letter={inputValue}
       state={ElementStates.Changing}
@@ -109,9 +119,11 @@ export const ListPage: React.FC = () => {
     await timer()
     listArray[listArray.length - 1].state = ElementStates.Default
     setListArray([...listArray]);
+    setAddToTailButtonState({disabled: false, isLoading: false})
   }
 
-  const removeFromHead = async () => {
+  const removeFromHead: React.MouseEventHandler<HTMLButtonElement> = async () => {
+    setRemoveFromHeadButtonState({disabled: false, isLoading: true})
     listArray[0].head = <Circle
       letter={listArray[0].letter}
       state={ElementStates.Changing}
@@ -121,9 +133,11 @@ export const ListPage: React.FC = () => {
     await timer()
     listArray.shift();
     setListArray([...listArray]);
+    setRemoveFromHeadButtonState({disabled: false, isLoading: false})
   }
 
-  const removeFromTail = async () => {
+  const removeFromTail: React.MouseEventHandler<HTMLButtonElement> = async () => {
+    setRemoveFromTailButtonState({disabled: false, isLoading: true})
     listArray[listArray.length - 1].tail = <Circle
       letter={listArray[listArray.length - 1].letter}
       state={ElementStates.Changing}
@@ -133,9 +147,11 @@ export const ListPage: React.FC = () => {
     await timer()
     listArray.pop();
     setListArray([...listArray]);
+    setRemoveFromTailButtonState({disabled: false, isLoading: false})
   }
 
-  const addByIndex = async () => {
+  const addByIndex: React.MouseEventHandler<HTMLButtonElement> = async () => {
+    setAddByIndexButtonState({disabled: false, isLoading: true})
     if (inputIndex || inputIndex === 0) {
       for (let i = 0; i <= inputIndex - 1; i++) {
         await changeStateByAdd(listArray[i])
@@ -161,9 +177,11 @@ export const ListPage: React.FC = () => {
         listArray[inputIndex].state = ElementStates.Default
         setListArray([...listArray]);
       }
+      setAddByIndexButtonState({disabled: false, isLoading: false})
     }}
 
-    const removeByIndex = async () => {
+    const removeByIndex: React.MouseEventHandler<HTMLButtonElement> = async () => {
+      setRemoveByIndexButtonState({disabled: false, isLoading: true})
       if (inputIndex || inputIndex === 0) {
         for (let i = 0; i <= inputIndex - 1; i++) {
           await changeStateByRemove(listArray[i])
@@ -182,41 +200,78 @@ export const ListPage: React.FC = () => {
           setListArray([...listArray]);
         }
       }
+      setRemoveByIndexButtonState({disabled: false, isLoading: false})
     }
 
     useEffect(() => {
       generateRandomArray()
     }, [])
 
+    useEffect(() => {
+      if(!inputValue || inputValue.toString().length > 4) {
+        setAddToHeadButtonState({disabled: true, isLoading: false})
+        setAddToTailButtonState({disabled: true, isLoading: false})
+      } else {
+        setAddToHeadButtonState({disabled: false, isLoading: false})
+        setAddToTailButtonState({disabled: false, isLoading: false})
+      }
+      if(!inputIndex || inputIndex > listArray.length - 1 || !listArray.length) {
+        setAddByIndexButtonState({disabled: true, isLoading: false})
+        setRemoveByIndexButtonState({disabled: true, isLoading: false})
+      } else {
+        setAddByIndexButtonState({disabled: false, isLoading: false})
+        setRemoveByIndexButtonState({disabled: false, isLoading: false})
+      }
+    }, [inputIndex, inputValue])
+
     return (
       <SolutionLayout title="Связный список">
         <div className={styles.list__controls}>
           <Input
-            onChange={onChangeValue}/>
+            onChange={onChangeValue}
+            value={inputValue}
+            isLimitText={true}
+            maxLength={4}
+            max={4}/>
           <div className={styles.list__buttons}>
             <Button
               text="Добавить в head"
-              onClick={addToHead}/>
+              onClick={addToHead}
+              disabled={addToHeadButtonState.disabled}
+              isLoader={addToHeadButtonState.isLoading}/>
             <Button
               text="Добавить в tail"
-              onClick={addToTail}/>
+              onClick={addToTail}
+              disabled={addToTailButtonState.disabled}
+              isLoader={addToTailButtonState.isLoading}/>
             <Button
               text="Удалить из head"
-              onClick={removeFromHead}/>
+              onClick={removeFromHead}
+              disabled={removeFromHeadButtonState.disabled}
+              isLoader={removeFromHeadButtonState.isLoading}/>
             <Button
               text="Удалить из tail"
-              onClick={removeFromTail}/>
+              onClick={removeFromTail}
+              disabled={removeFromTailButtonState.disabled}
+              isLoader={removeFromTailButtonState.isLoading}/>
           </div>
         </div>
         <div className={styles.list__controls}>
           <Input
-            onChange={onChangeIndex}/>
+            onChange={onChangeIndex}
+            value={inputIndex}
+            isLimitText={true}
+            maxLength={2}/>
           <Button
             text="Добавить по индексу"
-            onClick={addByIndex}/>
+            onClick={addByIndex}
+            disabled={addByIndexButtonState.disabled}
+            isLoader={addByIndexButtonState.isLoading}/>
           <Button
             text="Удалить по индексу"
-            onClick={removeByIndex}/>
+            onClick={removeByIndex}
+            disabled={removeByIndexButtonState.disabled}
+            isLoader={removeByIndexButtonState.isLoading}/>
         </div>
         <div className={styles.circle__container}>
           {listArray.map((item, index) => {

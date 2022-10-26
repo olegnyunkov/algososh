@@ -7,11 +7,14 @@ import {Circle} from "../ui/circle/circle";
 import {ElementStates} from "../../types/element-states";
 
 export const StackPage: React.FC = () => {
-  const [inputValue, setInputValue] = useState<number>()
-  const [stackArray, setStackArray] = useState<{ letter: number, state: ElementStates, head: string }[]>([])
-  const [buttonState, setButtonState] = useState<boolean>(false)
+  const [inputValue, setInputValue] = useState<string | number>("")
+  const [stackArray, setStackArray] = useState<{ letter: string | number, state: ElementStates, head: string }[]>([])
+  const [buttonState, setButtonState] = useState<boolean>(false);
+  const [removeButtonState, setRemoveButtonState] = useState<boolean>(false)
+  const [resetButtonState, setResetButtonState] = useState<boolean>(false)
+  const [buttonLoader, setButtonLoader] = useState<boolean>(false);
   const onChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setInputValue(+e.target.value)
+    setInputValue(e.target.value)
   }
 
   const timer = () => {
@@ -22,7 +25,8 @@ export const StackPage: React.FC = () => {
     })
   }
 
-  const addToStack = () => {
+  const addToStack: React.MouseEventHandler<HTMLButtonElement> =async () => {
+    setButtonLoader(true)
     inputValue && stackArray.push({letter: inputValue, state: ElementStates.Default, head: ""})
     stackArray.forEach(async (item) => {
       if (stackArray.indexOf(item) === stackArray.indexOf(stackArray[stackArray.length - 1])) {
@@ -37,9 +41,13 @@ export const StackPage: React.FC = () => {
       }
     })
     setStackArray([...stackArray])
+    await timer()
+    setButtonLoader(false)
+    setInputValue("")
   }
 
-  const removeFromStack = async () => {
+  const removeFromStack: React.MouseEventHandler<HTMLButtonElement> = async () => {
+    setButtonLoader(true)
     stackArray.forEach((item) => {
       if (stackArray.indexOf(item) === stackArray.indexOf(stackArray[stackArray.length - 1])) {
         item.head = "top"
@@ -52,42 +60,54 @@ export const StackPage: React.FC = () => {
     await timer()
     stackArray.pop()
     setStackArray([...stackArray])
+    await timer()
+    setButtonLoader(false)
   }
 
-  const clearStack = () => {
+  const clearStack: React.MouseEventHandler<HTMLButtonElement> = () => {
     setStackArray([])
   }
 
   useEffect(() => {
-    if (inputValue && inputValue.toString().length > 4) {
+    if (inputValue && inputValue.toString().length > 4 || !inputValue) {
       setButtonState(true)
     } else {
       setButtonState(false)
     }
-  }, [inputValue])
+    if (!stackArray.length) {
+      setRemoveButtonState(true)
+      setResetButtonState(true)
+    } else {
+      setRemoveButtonState(false)
+      setResetButtonState(false)
+    }
+  }, [inputValue, stackArray.length])
 
   return (
     <SolutionLayout title="Стек">
       <div className={styles.stack__controls}>
         <div className={styles.stack__input}>
           <Input
-            type="number"
+            type="text"
             isLimitText={true}
-            max={9999}
-            onChange={onChange}/>
+            maxLength={4}
+            onChange={onChange}
+            value={inputValue}/>
           <Button
             text="Добавить"
             onClick={addToStack}
-            disabled={buttonState}/>
+            disabled={buttonState}
+            isLoader={buttonLoader}/>
           <Button
             text="Удалить"
             onClick={removeFromStack}
-            disabled={buttonState}/>
+            disabled={removeButtonState}
+            isLoader={buttonLoader}/>
         </div>
         <Button
           text="Очистить"
           onClick={clearStack}
-          disabled={buttonState}/>
+          disabled={resetButtonState}/>
       </div>
       <div className={styles.circle__container}>
         {stackArray.map((item, index) => {

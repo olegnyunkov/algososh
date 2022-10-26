@@ -1,4 +1,4 @@
-import React, {useState} from "react";
+import React, {useState, useEffect} from "react";
 import {SolutionLayout} from "../ui/solution-layout/solution-layout";
 import {Input} from "../ui/input/input";
 import {Button} from "../ui/button/button";
@@ -17,6 +17,7 @@ export const StringComponent: React.FC = () => {
   const [inputValue, setInputValue] = useState<string>("");
   const [stringArray, setStringArray] = useState<TStringArray[]>([]);
   const [buttonLoader, setButtonLoader] = useState<boolean>(false);
+  const [buttonState, setButtonState] = useState<boolean>(false);
 
   const onChange = (e: React.ChangeEvent<HTMLInputElement>): void => {
     setInputValue(e.target.value);
@@ -41,11 +42,12 @@ export const StringComponent: React.FC = () => {
       }
       if(arg2 < arg1) {
         setButtonLoader(false);
+        setInputValue("")
       }
     }, DELAY_IN_MS);
   };
 
-  const onClick = () => {
+  const onClick: React.MouseEventHandler<HTMLButtonElement> = () => {
     setButtonLoader(true);
     const array: TStringArray[] = [];
     inputValue.split("").forEach((item, index) => {
@@ -63,17 +65,27 @@ export const StringComponent: React.FC = () => {
     swapChars(array, start, end);
   };
 
+  useEffect(() => {
+    if(!inputValue) {
+      setButtonState(true)
+    } else {
+      setButtonState(false)
+    }
+  }, [inputValue])
+
   return (
     <SolutionLayout title="Строка">
       <div className={styles.input__container}>
         <Input
           onInput={onChange}
           isLimitText={true}
-          maxLength={11}/>
+          maxLength={11}
+          value={inputValue}/>
         <Button
           text="Развернуть"
           isLoader={buttonLoader}
-          onClick={onClick}/>
+          onClick={onClick}
+          disabled={buttonState}/>
       </div>
       <div className={styles.circle__container}>
         {stringArray.map((item, index) => {
