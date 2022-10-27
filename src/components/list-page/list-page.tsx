@@ -7,50 +7,28 @@ import {Circle} from "../ui/circle/circle";
 import {ArrowIcon} from "../ui/icons/arrow-icon";
 import {ElementStates} from "../../types/element-states";
 import {nanoid} from "nanoid";
+import { addHeadCircle, generateArray, generateData, ILinkedList, LinkedList, timer } from "./utils";
 
-export type TArrElement = {
-  letter: number | string | undefined | null;
+export type TList = {
+  value: string;
   state: ElementStates;
-  head: string | ReactElement;
-  tail: string | ReactElement;
-  isSmall: boolean;
-}
+  head: string | React.ReactElement | null;
+  tail: string | React.ReactElement | null;
+};
 
 export const ListPage: React.FC = () => {
-  const arrElement: TArrElement = {
-    letter: null,
-    state: ElementStates.Default,
-    head: "",
-    tail: "",
-    isSmall: false,
-  }
+  const list = new LinkedList<string>(generateArray())
 
-  const generateRandomArray = (): TArrElement[] => {
-    const array = [];
-    for (let i = 0; i <= 3; i++) {
-      const arrayNumbers = Math.floor(Math.random() * 100);
-      array.push({
-        letter: arrayNumbers,
-        state: ElementStates.Default,
-        head: "",
-        tail: "",
-        isSmall: false,
-        id: null,
-      })
-    }
-    return array
-  }
-
-  const [inputValue, setInputValue] = useState<number | string | undefined>("")
+  const [inputValue, setInputValue] = useState<string>("")
   const [inputIndex, setInputIndex] = useState<number | undefined>()
-  const [listArray, setListArray] = useState<TArrElement[]>([...generateRandomArray()])
+  const [tempArray, setTempArray] = useState<ILinkedList<string>>(list)
+  const [listArray, setListArray] = useState<TList[]>(generateData(tempArray.toArray()))
   const [addToHeadButtonState, setAddToHeadButtonState] = useState({disabled: false, isLoading: false})
   const [addToTailButtonState, setAddToTailButtonState] = useState({disabled: false, isLoading: false})
   const [removeFromHeadButtonState, setRemoveFromHeadButtonState] = useState({disabled: false, isLoading: false})
   const [removeFromTailButtonState, setRemoveFromTailButtonState] = useState({disabled: false, isLoading: false})
   const [addByIndexButtonState, setAddByIndexButtonState] = useState({disabled: false, isLoading: false})
   const [removeByIndexButtonState, setRemoveByIndexButtonState] = useState({disabled: false, isLoading: false})
-
 
   const onChangeValue = (e: React.ChangeEvent<HTMLInputElement>) => {
     setInputValue(e.target.value)
@@ -59,28 +37,22 @@ export const ListPage: React.FC = () => {
     setInputIndex(+e.target.value)
   }
 
-  const changeStateByAdd = async (element: TArrElement) => {
-    await timer()
-    element.state = ElementStates.Changing
-    element.head = <Circle
-      letter={inputValue}
-      state={ElementStates.Changing}
-      isSmall={true}/>
-    setListArray([...listArray])
-    element.head = ""
-  }
+  // const changeStateByAdd = async (element: TArrElement) => {
+  //   await timer()
+  //   element.state = ElementStates.Changing
+  //   element.head = <Circle
+  //     letter={inputValue}
+  //     state={ElementStates.Changing}
+  //     isSmall={true}/>
+  //   setListArray([...listArray])
+  //   element.head = ""
+  // }
 
-  const changeStateByRemove = async (element: TArrElement) => {
-    await timer()
-    element.state = ElementStates.Changing
-    setListArray([...listArray])
-  }
-
-  const timer = () => {
-    return new Promise((res) => {
-      setTimeout(res, 500)
-    })
-  }
+  // const changeStateByRemove = async (element: TArrElement) => {
+  //   await timer()
+  //   element.state = ElementStates.Changing
+  //   setListArray([...listArray])
+  // }
 
   const addToHead: React.MouseEventHandler<HTMLButtonElement> = async () => {
     setAddToHeadButtonState({disabled: false, isLoading: true})
@@ -88,141 +60,156 @@ export const ListPage: React.FC = () => {
       letter={inputValue}
       state={ElementStates.Changing}
       isSmall={true}/>
-    setListArray([...listArray]);
+    // setListArray([...listArray])
+    tempArray.prepend(inputValue)
     await timer()
-    arrElement.letter = inputValue
-    inputValue && listArray.unshift(arrElement);
-    listArray[0].state = ElementStates.Modified
-    listArray[0].head = "head"
-    listArray[1].head = ""
-    setListArray([...listArray]);
+    setTempArray(tempArray)
+    generateData(tempArray.toArray())[0].state = ElementStates.Modified
+    setListArray([...listArray])
     await timer()
-    listArray[0].state = ElementStates.Default
-    setListArray([...listArray]);
+    setListArray([...generateData(tempArray.toArray())])
+    // listArray[0].head = <Circle
+    //   letter={inputValue}
+    //   state={ElementStates.Changing}
+    //   isSmall={true}/>
+    // setListArray([...listArray]);
+    // await timer()
+    // arrElement.letter = inputValue
+    // inputValue && listArray.unshift(arrElement);
+    // listArray[0].state = ElementStates.Modified
+    // listArray[0].head = "head"
+    // listArray[1].head = ""
+    // setListArray([...listArray]);
+    // await timer()
+    // listArray[0].state = ElementStates.Default
+    // setListArray([...listArray]);
     setAddToHeadButtonState({disabled: false, isLoading: false})
+    setInputValue("")
   }
+console.log(generateData(tempArray.toArray())[0].state);
 
   const addToTail: React.MouseEventHandler<HTMLButtonElement> = async () => {
     setAddToTailButtonState({disabled: false, isLoading: true})
-    listArray[listArray.length - 1].tail = <Circle
-      letter={inputValue}
-      state={ElementStates.Changing}
-      isSmall={true}/>
-    setListArray([...listArray]);
-    await timer()
-    arrElement.letter = inputValue
-    inputValue && listArray.push(arrElement);
-    listArray[listArray.length - 1].state = ElementStates.Modified
-    listArray[listArray.length - 1].tail = "tail"
-    listArray[listArray.length - 2].tail = ""
-    setListArray([...listArray]);
-    await timer()
-    listArray[listArray.length - 1].state = ElementStates.Default
-    setListArray([...listArray]);
+    // listArray[listArray.length - 1].tail = <Circle
+    //   letter={inputValue}
+    //   state={ElementStates.Changing}
+    //   isSmall={true}/>
+    // setListArray([...listArray]);
+    // await timer()
+    // arrElement.letter = inputValue
+    // inputValue && listArray.push(arrElement);
+    // listArray[listArray.length - 1].state = ElementStates.Modified
+    // listArray[listArray.length - 1].tail = "tail"
+    // listArray[listArray.length - 2].tail = ""
+    // setListArray([...listArray]);
+    // await timer()
+    // listArray[listArray.length - 1].state = ElementStates.Default
+    // setListArray([...listArray]);
     setAddToTailButtonState({disabled: false, isLoading: false})
   }
 
   const removeFromHead: React.MouseEventHandler<HTMLButtonElement> = async () => {
     setRemoveFromHeadButtonState({disabled: false, isLoading: true})
-    listArray[0].head = <Circle
-      letter={listArray[0].letter}
-      state={ElementStates.Changing}
-      isSmall={true}/>
-    listArray[0].letter = null
-    setListArray([...listArray]);
-    await timer()
-    listArray.shift();
-    setListArray([...listArray]);
+    // listArray[0].head = <Circle
+    //   letter={listArray[0].letter}
+    //   state={ElementStates.Changing}
+    //   isSmall={true}/>
+    // listArray[0].letter = null
+    // setListArray([...listArray]);
+    // await timer()
+    // listArray.shift();
+    // setListArray([...listArray]);
     setRemoveFromHeadButtonState({disabled: false, isLoading: false})
   }
 
   const removeFromTail: React.MouseEventHandler<HTMLButtonElement> = async () => {
     setRemoveFromTailButtonState({disabled: false, isLoading: true})
-    listArray[listArray.length - 1].tail = <Circle
-      letter={listArray[listArray.length - 1].letter}
-      state={ElementStates.Changing}
-      isSmall={true}/>
-    listArray[listArray.length - 1].letter = null
-    setListArray([...listArray]);
-    await timer()
-    listArray.pop();
-    setListArray([...listArray]);
+    // listArray[listArray.length - 1].tail = <Circle
+    //   letter={listArray[listArray.length - 1].letter}
+    //   state={ElementStates.Changing}
+    //   isSmall={true}/>
+    // listArray[listArray.length - 1].letter = null
+    // setListArray([...listArray]);
+    // await timer()
+    // listArray.pop();
+    // setListArray([...listArray]);
     setRemoveFromTailButtonState({disabled: false, isLoading: false})
   }
 
   const addByIndex: React.MouseEventHandler<HTMLButtonElement> = async () => {
     setAddByIndexButtonState({disabled: false, isLoading: true})
-    if (inputIndex || inputIndex === 0) {
-      for (let i = 0; i <= inputIndex - 1; i++) {
-        await changeStateByAdd(listArray[i])
-      }
-    }
-    await timer()
-    if (inputIndex || inputIndex === 0) {
-      listArray[inputIndex].head = <Circle
-        letter={inputValue}
-        state={ElementStates.Changing}
-        isSmall={true}/>
-      setListArray([...listArray]);
-      await timer()
-      arrElement.letter = inputValue
-      listArray.splice(inputIndex, 0, arrElement);
-      listArray[inputIndex + 1].head = ""
-      listArray[inputIndex].state = ElementStates.Modified
-      setListArray([...listArray]);
-      await timer()
-      for (let i = 0; i <= inputIndex - 1; i++) {
-        listArray[i].state = ElementStates.Default
-        setListArray([...listArray]);
-        listArray[inputIndex].state = ElementStates.Default
-        setListArray([...listArray]);
-      }
-      setAddByIndexButtonState({disabled: false, isLoading: false})
-    }}
+    // if (inputIndex || inputIndex === 0) {
+    //   for (let i = 0; i <= inputIndex - 1; i++) {
+    //     await changeStateByAdd(listArray[i])
+    //   }
+    // }
+    // await timer()
+    // if (inputIndex || inputIndex === 0) {
+    //   listArray[inputIndex].head = <Circle
+    //     letter={inputValue}
+    //     state={ElementStates.Changing}
+    //     isSmall={true}/>
+    //   setListArray([...listArray]);
+    //   await timer()
+    //   arrElement.letter = inputValue
+    //   listArray.splice(inputIndex, 0, arrElement);
+    //   listArray[inputIndex + 1].head = ""
+    //   listArray[inputIndex].state = ElementStates.Modified
+    //   setListArray([...listArray]);
+    //   await timer()
+    //   for (let i = 0; i <= inputIndex - 1; i++) {
+    //     listArray[i].state = ElementStates.Default
+    //     setListArray([...listArray]);
+    //     listArray[inputIndex].state = ElementStates.Default
+    //     setListArray([...listArray]);
+    //   }
+    // }
+    setAddByIndexButtonState({disabled: false, isLoading: false})
+  }
 
     const removeByIndex: React.MouseEventHandler<HTMLButtonElement> = async () => {
-      setRemoveByIndexButtonState({disabled: false, isLoading: true})
-      if (inputIndex || inputIndex === 0) {
-        for (let i = 0; i <= inputIndex - 1; i++) {
-          await changeStateByRemove(listArray[i])
-        }
-        await timer()
-        listArray[inputIndex].tail = <Circle
-          letter={listArray[inputIndex].letter}
-          state={ElementStates.Changing}
-          isSmall={true}/>
-        setListArray([...listArray]);
-        listArray[inputIndex].letter = null
-        await timer()
-        listArray.splice(inputIndex, 1);
-        for (let i = 0; i <= inputIndex; i++) {
-          listArray[i].state = ElementStates.Default
-          setListArray([...listArray]);
-        }
-      }
-      setRemoveByIndexButtonState({disabled: false, isLoading: false})
+      // setRemoveByIndexButtonState({disabled: false, isLoading: true})
+      // if (inputIndex || inputIndex === 0) {
+      //   for (let i = 0; i <= inputIndex - 1; i++) {
+      //     await changeStateByRemove(listArray[i])
+      //   }
+      //   await timer()
+      //   listArray[inputIndex].tail = <Circle
+      //     letter={listArray[inputIndex].letter}
+      //     state={ElementStates.Changing}
+      //     isSmall={true}/>
+      //   setListArray([...listArray]);
+      //   listArray[inputIndex].letter = null
+      //   await timer()
+      //   listArray.splice(inputIndex, 1);
+      //   for (let i = 0; i <= inputIndex; i++) {
+      //     listArray[i].state = ElementStates.Default
+      //     setListArray([...listArray]);
+      //   }
+      // }
+      // setRemoveByIndexButtonState({disabled: false, isLoading: false})
     }
 
-    useEffect(() => {
-      generateRandomArray()
-    }, [])
+    // useEffect(() => {
+    //   generateRandomArray()
+    // }, [])
 
-    useEffect(() => {
-      if(!inputValue || inputValue.toString().length > 4) {
-        setAddToHeadButtonState({disabled: true, isLoading: false})
-        setAddToTailButtonState({disabled: true, isLoading: false})
-      } else {
-        setAddToHeadButtonState({disabled: false, isLoading: false})
-        setAddToTailButtonState({disabled: false, isLoading: false})
-      }
-      if(!inputIndex || inputIndex > listArray.length - 1 || !listArray.length) {
-        setAddByIndexButtonState({disabled: true, isLoading: false})
-        setRemoveByIndexButtonState({disabled: true, isLoading: false})
-      } else {
-        setAddByIndexButtonState({disabled: false, isLoading: false})
-        setRemoveByIndexButtonState({disabled: false, isLoading: false})
-      }
-    }, [inputIndex, inputValue])
+    // useEffect(() => {
+    //   if(!inputValue || inputValue.toString().length > 4) {
+    //     setAddToHeadButtonState({disabled: true, isLoading: false})
+    //     setAddToTailButtonState({disabled: true, isLoading: false})
+    //   } else {
+    //     setAddToHeadButtonState({disabled: false, isLoading: false})
+    //     setAddToTailButtonState({disabled: false, isLoading: false})
+    //   }
+    //   if(!inputIndex || inputIndex > listArray.length - 1 || !listArray.length) {
+    //     setAddByIndexButtonState({disabled: true, isLoading: false})
+    //     setRemoveByIndexButtonState({disabled: true, isLoading: false})
+    //   } else {
+    //     setAddByIndexButtonState({disabled: false, isLoading: false})
+    //     setRemoveByIndexButtonState({disabled: false, isLoading: false})
+    //   }
+    // }, [inputIndex, inputValue])
 
     return (
       <SolutionLayout title="Связный список">
@@ -279,12 +266,12 @@ export const ListPage: React.FC = () => {
               <>
                 <Circle
                   key={index}
-                  letter={item.letter}
+                  letter={item.value}
                   index={index}
                   state={item.state}
                   head={item.head}
                   tail={item.tail}
-                  isSmall={item.isSmall}/>
+                  isSmall={false}/>
                 <ArrowIcon
                   key={nanoid()}/>
               </>
