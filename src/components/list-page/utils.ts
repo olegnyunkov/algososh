@@ -1,6 +1,5 @@
-import { ElementStates } from "../../types/element-states";
-import { TList } from "./list-page";
-import {Circle} from "../ui/circle/circle";
+import {ElementStates} from "../../types/element-states";
+import {TList} from "./list-page";
 
 export interface ILinkedList<T> {
   append: (item: T) => void;
@@ -16,6 +15,7 @@ export interface ILinkedList<T> {
 export class Node<T> {
   value: T;
   next: Node<T> | null;
+
   constructor(value: T, next?: Node<T> | null) {
     this.value = value;
     this.next = next === undefined ? null : next;
@@ -171,61 +171,42 @@ export const generateArray = () => {
 };
 
 export const generateData = (array: string[]): TList[] => {
-    return array.map((item, index) => {
-      if (array.length === 1) {
-        return {
-          value: item,
-          state: ElementStates.Default,
-          head: "head",
-          tail: "tail"
-        }
+  return array.map((item, index) => {
+    if (array.length === 1) {
+      return {
+        value: item,
+        state: ElementStates.Default,
+        head: "head",
+        tail: "tail"
       }
-      if (index === 0) {
-        return {
-          value: item,
-          state: ElementStates.Default,
-          head: "head",
-          tail: null
-        }
+    }
+    if (index === 0) {
+      return {
+        value: item,
+        state: ElementStates.Default,
+        head: "head",
+        tail: null
       }
-      if (index === array.length - 1) {
-        return {
-          value: item,
-          state: ElementStates.Default,
-          head: null,
-          tail: "tail"
-        }
-      }
+    }
+    if (index === array.length - 1) {
       return {
         value: item,
         state: ElementStates.Default,
         head: null,
-        tail: null
+        tail: "tail"
       }
-    })
-  }
-
-  export const addHeadCircle = (array: TList[], value: string, index: number, position: "head" | "tail") => {
-    if (array.length > 0 && position === "head") {
-      array[index].head = ""
-    //   <Circle
-    //       key={index}
-    //       letter={value}
-    //       state={ElementStates.Changing}
-    //       isSmall
-    //     />
     }
-    if (array.length > 0 && position === "tail") {
-      array[index].tail = ""
-    //   <Circle
-    //       key={index}
-    //       letter={value}
-    //       state={ElementStates.Changing}
-    //       isSmall
-    //     />
+    return {
+      value: item,
+      state: ElementStates.Default,
+      head: null,
+      tail: null
     }
-  }
+  })
+}
 
 export const timer = () => {
-  return new Promise((res) => {setTimeout(res, 500)})
+  return new Promise((res) => {
+    setTimeout(res, 500)
+  })
 }

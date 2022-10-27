@@ -6,16 +6,14 @@ import {Column} from "../ui/column/column";
 import styles from "./sorting-page.module.css"
 import {Direction} from "../../types/direction";
 import {ElementStates} from "../../types/element-states";
-import {timer} from "./utils";
+import {swapChars, timer} from "./utils";
 
-//анимация еще не готова
 export const SortingPage: React.FC = () => {
   const [sortingArray, setSortingArray] = useState<{index: number, state: ElementStates}[]>([]);
   const [value, setValue] = useState<string>("select");
   const [ascButtonState, setAscButtonState] = useState<{disabled: boolean, isLoading: boolean}>({disabled: false, isLoading: false});
   const [descButtonState, setDescButtonState] = useState<{disabled: boolean, isLoading: boolean}>({disabled: false, isLoading: false});
   const [resetButtonState, setResetButtonState] = useState<{disabled: boolean, isLoading: boolean}>({disabled: false, isLoading: false});
-
 
   const generateRandomArray = () => {
     const arrayLength = Math.floor(Math.random() * (17 - 3) + 3);
@@ -38,76 +36,104 @@ export const SortingPage: React.FC = () => {
   const selectionAscSort: React.MouseEventHandler<HTMLButtonElement> = async () => {
     setAscButtonState({disabled: false, isLoading: true})
     const arr = [...sortingArray]
-    for (let i = 0, l = arr.length, k = l - 1; i < k; i++) {
+    for (let i = 0; i < arr.length - 1; i++) {
       let indexMin = i;
-      for (let j = i + 1; j < l; j++) {
+      arr[indexMin].state = ElementStates.Changing;
+      setSortingArray([...arr])
+      for (let j = i + 1; j < arr.length; j++) {
+        arr[j].state = ElementStates.Changing;
+        setSortingArray([...arr])
         await timer()
         if (arr[indexMin].index > arr[j].index) {
           indexMin = j;
         }
+        arr[j].state = ElementStates.Default;
         setSortingArray([...arr])
       }
-      await timer()
-      if (indexMin !== i) {
-        [arr[i], arr[indexMin]] = [arr[indexMin], arr[i]];
-      }
+      swapChars(arr, i, indexMin)
+      arr[indexMin].state = ElementStates.Default
+      arr[i].state = ElementStates.Modified
       setSortingArray([...arr])
+      await timer()
     }
+    arr[arr.length - 1].state = ElementStates.Modified
     setAscButtonState({disabled: false, isLoading: false})
   };
 
   const selectionDescSort: React.MouseEventHandler<HTMLButtonElement> = async () => {
     setDescButtonState({disabled: false, isLoading: true})
     const arr = [...sortingArray]
-    for (let i = 0, l = arr.length, k = l - 1; i < k; i++) {
+    for (let i = 0; i < arr.length - 1; i++) {
       let indexMin = i;
-      for (let j = i + 1; j < l; j++) {
+      arr[indexMin].state = ElementStates.Changing;
+      setSortingArray([...arr])
+      for (let j = i + 1; j < arr.length; j++) {
+        arr[j].state = ElementStates.Changing;
+        setSortingArray([...arr])
         await timer()
         if (arr[indexMin].index < arr[j].index) {
           indexMin = j;
         }
-        setSortingArray([...arr]);
+        arr[j].state = ElementStates.Default;
+        setSortingArray([...arr])
       }
-      await timer()
-      if (indexMin !== i) {
-        [arr[i], arr[indexMin]] = [arr[indexMin], arr[i]];
-      }
+      swapChars(arr, i, indexMin)
+      arr[indexMin].state = ElementStates.Default
+      arr[i].state = ElementStates.Modified
       setSortingArray([...arr])
+      await timer()
     }
+    arr[arr.length - 1].state = ElementStates.Modified
     setDescButtonState({disabled: false, isLoading: false})
   }
 
-  const bubbleAscSort: React.MouseEventHandler<HTMLButtonElement> = () => {
+  const bubbleAscSort: React.MouseEventHandler<HTMLButtonElement> = async () => {
     setAscButtonState({disabled: false, isLoading: true})
     const arr = [...sortingArray]
-    for (let i = 0, endI = arr.length - 1; i < endI; i++) {
-      let sorted = false;
-      for (let j = 0, endJ = endI - i; j < endJ; j++) {
+    for(let i = 0; i < arr.length; i++) {
+      for(let j = 0; j < arr.length - i - 1; j++) {
+        arr[j].state = ElementStates.Changing;
+        arr[j + 1].state = ElementStates.Changing;
+        setSortingArray([...arr]);
+        await timer();
         if (arr[j].index > arr[j + 1].index) {
-          [arr[j], arr[j + 1]] = [arr[j + 1], arr[j]];
-          sorted = true;
+          swapChars(arr, j, j + 1);
+          setSortingArray([...arr]);
+          await timer();
         }
+        arr[j].state = ElementStates.Default;
+        arr[j + 1].state = ElementStates.Default;
+        setSortingArray([...arr]);
       }
-      if (!sorted) break;
+      arr[arr.length - i - 1].state = ElementStates.Modified;
+      setSortingArray([...arr]);
+      await timer();
     }
-    setSortingArray([...arr]);
     setAscButtonState({disabled: false, isLoading: false})
   }
 
-  const bubbleDescSort: React.MouseEventHandler<HTMLButtonElement> = () => {
+  const bubbleDescSort: React.MouseEventHandler<HTMLButtonElement> = async () => {
     setDescButtonState({disabled: false, isLoading: true})
     const arr = [...sortingArray]
-    for (let i = 0, endI = arr.length - 1; i < endI; i++) {
-      let sorted = false;
-      for (let j = 0, endJ = endI + i; j < endJ; j++) {
-        if (arr.indexOf(arr[j]) > arr.indexOf(arr[j - 1])) {
-          [arr[j], arr[j - 1]] = [arr[j - 1], arr[j]];
-          sorted = true;
+    for(let i = 0; i < arr.length; i++) {
+      for(let j = 0; j < arr.length - i - 1; j++) {
+        arr[j].state = ElementStates.Changing;
+        arr[j + 1].state = ElementStates.Changing;
+        setSortingArray([...arr]);
+        await timer();
+        if (arr[j].index < arr[j + 1].index) {
+          swapChars(arr, j, j + 1);
+          setSortingArray([...arr]);
+          await timer();
         }
+        arr[j].state = ElementStates.Default;
+        arr[j + 1].state = ElementStates.Default;
+        setSortingArray([...arr]);
       }
-      if (!sorted) break;
+      arr[arr.length - i - 1].state = ElementStates.Modified;
+      setSortingArray([...arr]);
+      await timer();
     }
-    setSortingArray([...arr]);
     setDescButtonState({disabled: false, isLoading: false})
   }
 
@@ -124,7 +150,6 @@ export const SortingPage: React.FC = () => {
       setResetButtonState({disabled: false, isLoading: false})
     }
   }, [ascButtonState.isLoading, descButtonState.isLoading])
-  
 
   return (
     <SolutionLayout title="Сортировка массива">
