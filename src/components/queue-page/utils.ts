@@ -1,3 +1,5 @@
+import {SHORT_DELAY_IN_MS} from "../../constants/delays";
+
 export interface IQueue<T> {
   enqueue: (item: T) => void;
   dequeue: () => void;
@@ -65,6 +67,6 @@ export class Queue<T> implements IQueue<T> {
 }
 
 export const timer = () => {
-  return new Promise((res) => {setTimeout(res, 500)
+  return new Promise((res) => {setTimeout(res, SHORT_DELAY_IN_MS)
   })
 }

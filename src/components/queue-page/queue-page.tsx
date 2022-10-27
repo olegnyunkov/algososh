@@ -1,4 +1,4 @@
-import React, {useState} from "react";
+import React, {useState, useEffect} from "react";
 import {SolutionLayout} from "../ui/solution-layout/solution-layout";
 import styles from "./queue-page.module.css";
 import {Input} from "../ui/input/input";
@@ -13,22 +13,23 @@ export type TQueue = {
 }
 
 export const QueuePage: React.FC = () => {
-  const queue = new Queue<TQueue>(7)
-  const [inputValue, setInputValue] = useState<number | string>("")
-  const [tempArray, setTempArray] = useState<Queue<TQueue>>(queue)
-  const [stackQueue, setStackQueue] = useState<(TQueue | null)[]>([])
-  const [addButtonState, setAddButtonState] = useState<boolean>(false)
-  const [removeButtonState, setRemoveButtonState] = useState<boolean>(false)
-  const [resetButtonState, setResetButtonState] = useState<boolean>(false)
+  const queue = new Queue<TQueue>(7);
+  const [inputValue, setInputValue] = useState<number | string>("");
+  const [tempArray, setTempArray] = useState<Queue<TQueue>>(queue);
+  const [stackQueue, setStackQueue] = useState<(TQueue | null)[]>([]);
+  const [addButtonState, setAddButtonState] = useState<boolean>(false);
+  const [removeButtonState, setRemoveButtonState] = useState<boolean>(false);
+  const [resetButtonState, setResetButtonState] = useState<boolean>(false);
 
   const onChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setInputValue(e.target.value)
-  }
+  };
 
   const generateArray = () => {
     const array = []
     for(let i = 0; i < 7; i++) {
       array.push(<Circle
+        key={i}
         state={ElementStates.Default}
         letter=''
         index={i}
@@ -37,7 +38,7 @@ export const QueuePage: React.FC = () => {
       />)
     }
     return array
-  }
+  };
 
   const addToQueue: React.MouseEventHandler<HTMLButtonElement> = async () => {
     setAddButtonState(true)
@@ -53,7 +54,7 @@ export const QueuePage: React.FC = () => {
     setStackQueue([...tempArray.getItems()])
     setAddButtonState(false)
     setInputValue("")
-  }
+  };
 
   const removeFromQueue: React.MouseEventHandler<HTMLButtonElement> = async () => {
     setRemoveButtonState(true)
@@ -68,32 +69,29 @@ export const QueuePage: React.FC = () => {
     setTempArray(tempArray)
     setStackQueue([...tempArray.getItems()])
     setRemoveButtonState(false)
-  }
-  console.log()
+  };
+
   const clearQueue: React.MouseEventHandler<HTMLButtonElement> = () => {
     setResetButtonState(true)
     tempArray.clear()
     setTempArray(tempArray)
     setStackQueue([...tempArray.getItems()])
-  }
+  };
 
-  // useEffect(() => {
-    // if(addCount > 6 || !inputValue || inputValue.toString().length > 4) {
-    //   setAddButtonState(true)
-    // } else {
-    //   setAddButtonState(false)
-    // }
-    // if(removeCount > 6 || !inputValue || removeCount >= addCount) {
-    //   setRemoveButtonState(true)
-    // } else {
-    //   setRemoveButtonState(false)
-    // }
-    // if(!addCount) {
-    //   setResetButtonState(true)
-    // } else {
-    //   setResetButtonState(false)
-    // }
-  // }, [inputValue, addCount, removeCount])
+  useEffect(() => {
+    if(!inputValue) {
+      setAddButtonState(true)
+    } else {
+      setAddButtonState(false)
+    }
+    if(!stackQueue.length) {
+      setRemoveButtonState(true)
+      setResetButtonState(true)
+    } else {
+      setRemoveButtonState(false)
+      setResetButtonState(false)
+    }
+  }, [inputValue, stackQueue.length]);
 
   return (
     <SolutionLayout title="Очередь">
@@ -114,7 +112,7 @@ export const QueuePage: React.FC = () => {
           <Button
             text="Удалить"
             onClick={removeFromQueue}
-            disabled={resetButtonState}
+            disabled={removeButtonState}
           />
         </div>
         <Button

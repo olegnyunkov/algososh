@@ -1,3 +1,5 @@
+import {SHORT_DELAY_IN_MS} from "../../constants/delays";
+
 export interface IStack<T> {
   push: (item: T) => void;
   pop: () => void;
@@ -29,6 +31,6 @@ export class Stack<T> implements IStack<T> {
 }
 
 export const timer = () => {
-  return new Promise((res) => {setTimeout(res, 500)
+  return new Promise((res) => {setTimeout(res, SHORT_DELAY_IN_MS)
   })
 }
