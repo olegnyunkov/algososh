@@ -4,10 +4,11 @@ import {TList} from "./list-page";
 export interface ILinkedList<T> {
   append: (item: T) => void;
   prepend: (item: T) => void;
-  removeHead: (item: T) => void;
-  removeTail: (item: T) => void;
+  removeHead: () => void;
+  removeTail: () => void;
   insertAt: (item: T, index: number) => void;
   removeFrom: (index: number) => void;
+  getHead: () => Node<T> | null;
   getSize: () => number;
   toArray: () => T[];
 }
