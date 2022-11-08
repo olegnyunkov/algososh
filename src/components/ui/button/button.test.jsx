@@ -1,6 +1,7 @@
 import React from "react";
 import renderer from "react-test-renderer";
 import {Button} from "./button";
+import {fireEvent, render, screen} from "@testing-library/react";
 
 describe("button rendered: ", () => {
 
@@ -23,4 +24,11 @@ describe("button rendered: ", () => {
     const btn = renderer.create(<Button isLoader={true}/>).toJSON();
     expect(btn).toMatchSnapshot();
   });
+});
+
+it("button click works correctly", () => {
+  window.alert = jest.fn()
+  render(<Button text={"Кнопка"} />)
+  const btn = screen.getByText("Кнопка")
+  fireEvent.click(btn)
 })

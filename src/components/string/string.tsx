@@ -6,6 +6,7 @@ import {Circle} from "../ui/circle/circle";
 import styles from "./string.module.css";
 import {ElementStates} from "../../types/element-states";
 import {DELAY_IN_MS} from "../../constants/delays";
+import {swap} from "./utils";
 
 export type TStringArray = {
   char: string;
@@ -25,13 +26,11 @@ export const StringComponent: React.FC = () => {
 
   const swapChars = (arr: TStringArray[], arg1: number, arg2: number) => {
     setTimeout(() => {
-      const temp = arr[arg1];
       if(arr[arg1].index !== arr[arg2].index) {
         arr[arg1 + 1].state = ElementStates.Changing
         arr[arg2 - 1].state = ElementStates.Changing
       }
-      arr[arg1] = arr[arg2];
-      arr[arg2] = temp;
+      swap(arr, arg1, arg2)
       arg1++;
       arg2--;
       arr[arg1 - 1].state = ElementStates.Modified
@@ -63,6 +62,7 @@ export const StringComponent: React.FC = () => {
     const start = 0;
     const end = array.length - 1;
     swapChars(array, start, end);
+
   };
 
   useEffect(() => {
