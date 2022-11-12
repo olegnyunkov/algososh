@@ -1,12 +1,11 @@
-import React, {useState, useEffect} from "react";
+import React, {useEffect, useState} from "react";
 import {SolutionLayout} from "../ui/solution-layout/solution-layout";
 import {Input} from "../ui/input/input";
 import {Button} from "../ui/button/button";
 import {Circle} from "../ui/circle/circle";
 import styles from "./string.module.css";
 import {ElementStates} from "../../types/element-states";
-import {DELAY_IN_MS} from "../../constants/delays";
-import {swap} from "./utils";
+import {changeState, swap, timer} from "./utils";
 
 export type TStringArray = {
   char: string;
@@ -24,45 +23,32 @@ export const StringComponent: React.FC = () => {
     setInputValue(e.target.value);
   };
 
-  const swapChars = (arr: TStringArray[], arg1: number, arg2: number) => {
-    setTimeout(() => {
-      if(arr[arg1].index !== arr[arg2].index) {
-        arr[arg1 + 1].state = ElementStates.Changing
-        arr[arg2 - 1].state = ElementStates.Changing
-      }
-      swap(arr, arg1, arg2)
-      arg1++;
-      arg2--;
-      arr[arg1 - 1].state = ElementStates.Modified
-      arr[arg2 + 1].state = ElementStates.Modified
-      setStringArray([...arr])
-      if(arg2 >= arg1) {
-        swapChars(arr, arg1, arg2);
-      }
-      if(arg2 < arg1) {
-        setButtonLoader(false);
-        setInputValue("")
-      }
-    }, DELAY_IN_MS);
-  };
-
-  const onClick: React.MouseEventHandler<HTMLButtonElement> = () => {
+  const onClick: React.MouseEventHandler<HTMLButtonElement> = async () => {
     setButtonLoader(true);
-    const array: TStringArray[] = [];
+    setInputValue("")
+    const array: TStringArray[] = []
     inputValue.split("").forEach((item, index) => {
       array.push({
         char: item,
         state: ElementStates.Default,
-        index: index + 1,
+        index: index + 1
       })
-    });
+    })
+    let start = 0;
+    let end = array.length - 1;
+    array[start].state = ElementStates.Changing
+    array[end].state = ElementStates.Changing
     setStringArray([...array])
-    array[0].state = ElementStates.Changing
-    array[array.length - 1].state = ElementStates.Changing
-    const start = 0;
-    const end = array.length - 1;
-    swapChars(array, start, end);
+    while(end >= start) {
+      await timer()
+      swap(array, start, end)
+      changeState(array, start, end)
+      setStringArray([...array])
+      start++
+      end--
+    }
 
+    setButtonLoader(false);
   };
 
   useEffect(() => {
@@ -92,7 +78,8 @@ export const StringComponent: React.FC = () => {
           return <Circle
             key={index}
             letter={item.char}
-            state={item.state}/>
+            state={item.state}
+          />
         })}
       </div>
     </SolutionLayout>
