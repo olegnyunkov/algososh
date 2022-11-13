@@ -7,7 +7,7 @@ import styles from "./fibonacci-page.module.css"
 import {timer} from "./utils";
 
 export const FibonacciPage: React.FC = () => {
-  const [inputValue, setInputValue] = useState<number>(0);
+  const [inputValue, setInputValue] = useState<string | number>("");
   const [resultArray, setResultArray] = useState<number[]>([]);
   const [buttonState, setButtonState] = useState<boolean>(false);
   const [buttonLoader, setButtonLoader] = useState<boolean>(false);
@@ -30,12 +30,12 @@ export const FibonacciPage: React.FC = () => {
       setResultArray([...tempArray])
     }
     setButtonLoader(false)
-    setInputValue(0)
+    setInputValue("")
   }
 
   const onClick: React.MouseEventHandler<HTMLButtonElement> = () => {
     setButtonLoader(true)
-    inputValue && fibonacci(inputValue)
+    inputValue && fibonacci(+inputValue)
   }
 
   useEffect(() => {
