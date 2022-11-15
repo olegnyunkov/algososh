@@ -19,7 +19,7 @@ export const ListPage: React.FC = () => {
   const list = new LinkedList<string>(generateArray())
 
   const [inputValue, setInputValue] = useState<string>("")
-  const [inputIndex, setInputIndex] = useState<number>(0)
+  const [inputIndex, setInputIndex] = useState<string | number>("")
   const [tempArray, setTempArray] = useState<ILinkedList<string>>(list)
   const [listArray, setListArray] = useState<TList[]>(generateData(tempArray.toArray()))
   const [addToHeadButtonState, setAddToHeadButtonState] = useState({disabled: false, isLoading: false})
@@ -52,7 +52,7 @@ export const ListPage: React.FC = () => {
     setListArray([...tempListArray]);
     await timer();
     setListArray([...generateData(tempArray.toArray())]);
-    setInputIndex(0);
+    setInputIndex("");
     setAddToHeadButtonState({disabled: false, isLoading: false})
   }
 
@@ -72,7 +72,7 @@ export const ListPage: React.FC = () => {
     setListArray([...tempListArray]);
     await timer();
     setListArray([...generateData(tempArray.toArray())]);    
-    setInputIndex(0);
+    setInputIndex("");
     setAddToTailButtonState({disabled: false, isLoading: false})
   }
 
@@ -113,9 +113,9 @@ export const ListPage: React.FC = () => {
   const addByIndex = async () => {
     setAddByIndexButtonState({disabled: false, isLoading: true})
     let tempListArray = [...listArray];    
-    if (inputIndex === 0) {
+    if (!inputIndex) {
       tempListArray[0].head = <Circle
-        letter={tempListArray[0].value}
+        letter={inputValue}
         state={ElementStates.Changing}
         isSmall={true}/>
       setListArray([...tempListArray]);
@@ -137,7 +137,7 @@ export const ListPage: React.FC = () => {
             tempListArray[currentIndex - 1].state = ElementStates.Changing;
           }
           tempListArray[currentIndex].head = <Circle
-            letter={tempListArray[currentIndex].value}
+            letter={inputValue}
             state={ElementStates.Changing}
             isSmall={true}/>
           setListArray([...tempListArray]);
@@ -154,12 +154,12 @@ export const ListPage: React.FC = () => {
           tempListArray[currentIndex - 1].state = ElementStates.Changing;
         }
         tempListArray[currentIndex].head = <Circle
-          letter={tempListArray[currentIndex].value}
+          letter={inputValue}
           state={ElementStates.Changing}
           isSmall={true}/>
         setListArray([...tempListArray]);
         await timer();
-        inputIndex && tempArray.insertAt(inputValue, inputIndex);
+        inputIndex && tempArray.insertAt(inputValue, +inputIndex);
         setTempArray(tempArray);
         tempListArray = generateData(tempArray.toArray());
         setListArray([...tempListArray]);
@@ -170,7 +170,7 @@ export const ListPage: React.FC = () => {
       }
     }
     setInputValue("");
-    setInputIndex(0);
+    setInputIndex("");
     setAddByIndexButtonState({disabled: false, isLoading: false})
   }
 
@@ -218,13 +218,13 @@ export const ListPage: React.FC = () => {
         tempListArray[currentIndex].value = "";
         setListArray([...tempListArray]);
         await timer();
-        tempArray.removeFrom(inputIndex);
+        tempArray.removeFrom(+inputIndex);
         setTempArray(tempArray);
         tempListArray = generateData(tempArray.toArray());
         setListArray([...tempListArray]);
       }
     }
-    setInputIndex(0);
+    setInputIndex("");
     setRemoveByIndexButtonState({disabled: false, isLoading: false})
   }
 
