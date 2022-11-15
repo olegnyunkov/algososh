@@ -1,7 +1,9 @@
+import {circle, circleChanging, circleDefault} from "./constants"
+
 describe("queue test", () => {
 
   beforeEach(() => {
-    cy.visit("http://localhost:3000/queue")
+    cy.visit("/queue")
   })
 
   it("button disabled with empty input", () => {
@@ -11,18 +13,18 @@ describe("queue test", () => {
   it("add elements correctly", () => {
     cy.get("input").type("1234")
     cy.get("button").contains("Добавить").click()
-    cy.get("*[class^=circle_content]").should("have.length", 7).eq(0).find("[class*=circle_changing]")
-    cy.get("*[class^=circle_content]").should("have.length", 7).eq(0).find("[class*=circle_default]")
-    cy.get("*[class^=circle_content]").eq(0).contains("head")
-    cy.get("*[class^=circle_content]").eq(0).contains("tail")
-    cy.get("*[class^=circle_content]").eq(0).contains("1234")
+    cy.get(circle).should("have.length", 7).eq(0).find(circleChanging)
+    cy.get(circle).should("have.length", 7).eq(0).find(circleDefault)
+    cy.get(circle).eq(0).contains("head")
+    cy.get(circle).eq(0).contains("tail")
+    cy.get(circle).eq(0).contains("1234")
     cy.get("input").type("567")
     cy.get("button").contains("Добавить").click()
-    cy.get("*[class^=circle_content]").should("have.length", 7).eq(1).find("[class*=circle_changing]")
-    cy.get("*[class^=circle_content]").should("have.length", 7).eq(1).find("[class*=circle_default]")
-    cy.get("*[class^=circle_content]").eq(0).contains("head")
-    cy.get("*[class^=circle_content]").eq(1).contains("tail")
-    cy.get("*[class^=circle_content]").eq(1).contains("567")
+    cy.get(circle).should("have.length", 7).eq(1).find(circleChanging)
+    cy.get(circle).should("have.length", 7).eq(1).find(circleDefault)
+    cy.get(circle).eq(0).contains("head")
+    cy.get(circle).eq(1).contains("tail")
+    cy.get(circle).eq(1).contains("567")
   })
 
   it("remove elements correctly", () => {
@@ -36,14 +38,14 @@ describe("queue test", () => {
     cy.get("button").contains("Добавить").click()
     cy.wait(500)
     cy.get("button").contains("Удалить").click()
-    cy.get("*[class^=circle_content]").should("have.length", 7).eq(0).find("[class*=circle_changing]")
-    cy.get("*[class^=circle_content]").should("have.length", 7).eq(0).find("[class*=circle_default]")
-    cy.get("*[class^=circle_content]").eq(1).contains("head")
+    cy.get(circle).should("have.length", 7).eq(0).find(circleChanging)
+    cy.get(circle).should("have.length", 7).eq(0).find(circleDefault)
+    cy.get(circle).eq(1).contains("head")
     cy.get("button").contains("Удалить").click()
-    cy.get("*[class^=circle_content]").should("have.length", 7).eq(1).find("[class*=circle_changing]")
-    cy.get("*[class^=circle_content]").should("have.length", 7).eq(1).find("[class*=circle_default]")
-    cy.get("*[class^=circle_content]").eq(2).contains("head")
-    cy.get("*[class^=circle_content]").eq(1).should("not.have.text")
+    cy.get(circle).should("have.length", 7).eq(1).find(circleChanging)
+    cy.get(circle).should("have.length", 7).eq(1).find(circleDefault)
+    cy.get(circle).eq(2).contains("head")
+    cy.get(circle).eq(1).should("not.have.text")
   })
 
   it("reset elements correctly", () => {
@@ -57,10 +59,10 @@ describe("queue test", () => {
     cy.get("button").contains("Добавить").click()
     cy.wait(500)
     cy.get("button").contains("Очистить").click()
-    cy.get("*[class^=circle_content]").should("have.length", 7).as("circles")
+    cy.get(circle).should("have.length", 7).as("circles")
     cy.get("@circles").each((item) => {
       cy.wrap(item).should("not.have.text")
-      cy.wrap(item).find("[class*=circle_default]")
+      cy.wrap(item).find(circleDefault)
     })
   })
 })

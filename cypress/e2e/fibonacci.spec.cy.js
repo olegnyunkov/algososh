@@ -1,7 +1,9 @@
+import {circle} from "./constants"
+
 describe("fibonacci test", () => {
 
   beforeEach(() => {
-    cy.visit("http://localhost:3000/fibonacci")
+    cy.visit("/fibonacci")
   })
 
   it("button disabled with empty input", () => {
@@ -12,7 +14,7 @@ describe("fibonacci test", () => {
     cy.get("input").type("19")
     cy.get("button").contains("Рассчитать").click()
     cy.wait(11000)
-    cy.get("*[class^=circle_content]").should("have.length", 20)
-    cy.get("*[class^=circle_content]").last().contains("4181")
+    cy.get(circle).should("have.length", 20)
+    cy.get(circle).last().contains("4181")
   })
 })

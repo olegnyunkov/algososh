@@ -1,26 +1,26 @@
 describe("routing successful", () => {
 
   it("string page opened", () => {
-    cy.visit("http://localhost:3000/recursion")
+    cy.visit("/recursion")
   })
 
   it("fibonacci page opened", () => {
-    cy.visit("http://localhost:3000/fibonacci")
+    cy.visit("/fibonacci")
   })
 
   it("sorting page opened", () => {
-    cy.visit("http://localhost:3000/sorting")
+    cy.visit("/sorting")
   })
 
   it("stack page opened", () => {
-    cy.visit("http://localhost:3000/stack")
+    cy.visit("/stack")
   })
 
   it("queue page opened", () => {
-    cy.visit("http://localhost:3000/queue")
+    cy.visit("/queue")
   })
 
   it("queue page opened", () => {
-    cy.visit("http://localhost:3000/list")
+    cy.visit("/list")
   })
 })
